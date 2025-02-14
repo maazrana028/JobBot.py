@@ -12,6 +12,7 @@ class LinkedinJobBot:
     def __init__(self, email, password):
         self.email = email
         self.password = password
+        self.saved_jobs = []  # Store the saved jobs here
         options = webdriver.ChromeOptions()
         options.add_argument("--disable-gpu")
         options.add_argument("--disable-webrtc")
@@ -33,9 +34,7 @@ class LinkedinJobBot:
             password_input.send_keys(self.password)
             password_input.send_keys(Keys.RETURN)
 
-            # Generate random wait time and print for debugging
             random_wait_time = random.randint(3, 6)  # Reduced the sleep time
-            print(f"Sleeping for {random_wait_time} seconds before moving on to the next step...")  # Debugging statement
             time.sleep(random_wait_time)
 
             # Mask Selenium detection
@@ -49,11 +48,9 @@ class LinkedinJobBot:
     def search_jobs_linkedin(self, keywords, location):
         self.driver.get(f"https://www.linkedin.com/jobs/search/?keywords={keywords}&location={location}&f_TPR=r604800")
         random_wait_time = random.randint(3, 5)  # Reduced wait time
-        print(f"Sleeping for {random_wait_time} seconds before scrolling...")  # Debugging statement
         time.sleep(random_wait_time)
         self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         random_wait_time = random.randint(2, 4)  # Reduced wait time
-        print(f"Sleeping for {random_wait_time} seconds after scrolling...")  # Debugging statement
         time.sleep(random_wait_time)
 
     def evaluate_jobs_linkedin(self):
@@ -69,11 +66,9 @@ class LinkedinJobBot:
             try:
                 self.driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", card)
                 random_wait_time = random.randint(2, 4)  # Reduced wait time
-                print(f"Sleeping for {random_wait_time} seconds before clicking the job...")  # Debugging statement
                 time.sleep(random_wait_time)
                 card.click()
                 random_wait_time = random.randint(2, 5)  # Reduced wait time
-                print(f"Sleeping for {random_wait_time} seconds after clicking the job...")  # Debugging statement
                 time.sleep(random_wait_time)
 
                 job_title_element = wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'top-card-layout__title')))
@@ -98,8 +93,16 @@ class LinkedinJobBot:
                     if score >= 10:  # Adjust the score threshold as needed
                         print(f"Automatically applying to {job_title}...")
                         self.apply_to_job(job_title, job_link)
+
+                    # Save the job if relevant
+                    save_button = self.driver.find_element(By.XPATH, "//button[contains(@aria-label, 'Save job')]")
+                    if save_button:
+                        print(f"Saving {job_title}...")
+                        save_button.click()
+                        self.saved_jobs.append(job_link)  # Add to saved jobs list
                     else:
-                        print(f"Skipping {job_title}, score too low.")
+                        print(f"No save button found for {job_title}, skipping save.")
+
                 else:
                     print(f"Skipping {job_title}, posted on: {date_posted}")
 
@@ -135,18 +138,26 @@ class LinkedinJobBot:
                 self.search_jobs_linkedin(role, location)
                 self.evaluate_jobs_linkedin()
 
-                # Added debugging statement before the sleep to track its behavior
                 random_wait_time = random.randint(5, 8)  # Reduced sleep time
-                print(f"Sleeping for {random_wait_time} seconds before the next search.")  # Debugging statement
-                try:
-                    time.sleep(random_wait_time)
-                except Exception as e:
-                    print(f"Error while sleeping: {e}")
-                    break
+                time.sleep(random_wait_time)
 
+        # Save the latest jobs to a file
         with open('latest_jobs.txt', 'w') as file:
             for job in self.latest_jobs:
                 file.write(job + '\n')
+
+        # Display saved jobs at the end
+        print("\nSaved Jobs:")
+        if self.saved_jobs:
+            for saved_job in self.saved_jobs:
+                print(saved_job)
+        else:
+            print("No jobs saved.")
+
+    def apply_to_job(self, job_title, job_link):
+        # Implement functionality to apply automatically (you could fill out the application form, click Apply, etc.)
+        print(f"Applying to job: {job_title}")
+        # Application logic goes here
 
     def quit(self):
         self.driver.quit()
