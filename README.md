@@ -30,7 +30,7 @@ You can revisit this list later, recheck roles, or apply manually.
 Acts as a personal job board tailored to your preferences.
 
 ____________________________________________________________________________________________________________________________________________________________________________________________________
-Limitations and What the code does for does you.
+Limitations and What the code does for you.
 
 1. Bot Detection on LinkedIn
 LinkedIn is strict with bots. You’re already using good stealth techniques:
