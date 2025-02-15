@@ -158,8 +158,8 @@ class LinkedinJobBot:
         self.driver.quit()
 
 bot = LinkedinJobBot(
-    email='maazrana028@gmail.com',
-    password='HipnosisFishTechWHITE90'
+    email='username@example.com',
+    password='P@ssword1234'
 )
 
 try:
