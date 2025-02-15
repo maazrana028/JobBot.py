@@ -25,7 +25,7 @@ class LinkedinJobBot:
 
     def login_linkedin(self):
         self.driver.get("https://www.linkedin.com/login")
-        wait = WebDriverWait(self.driver, 8)  # Reduced the wait time
+        wait = WebDriverWait(self.driver, 3)  # Reduced wait time to speed up login
         try:
             email_input = wait.until(EC.presence_of_element_located((By.ID, 'username')))
             email_input.send_keys(self.email)
@@ -34,8 +34,7 @@ class LinkedinJobBot:
             password_input.send_keys(self.password)
             password_input.send_keys(Keys.RETURN)
 
-            random_wait_time = random.randint(3, 6)  # Reduced the sleep time
-            time.sleep(random_wait_time)
+            time.sleep(random.uniform(1, 2))  # Further reduced wait time for login
 
             # Mask Selenium detection
             self.driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
@@ -47,14 +46,12 @@ class LinkedinJobBot:
 
     def search_jobs_linkedin(self, keywords, location):
         self.driver.get(f"https://www.linkedin.com/jobs/search/?keywords={keywords}&location={location}&f_TPR=r604800")
-        random_wait_time = random.randint(3, 5)  # Reduced wait time
-        time.sleep(random_wait_time)
-        self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        random_wait_time = random.randint(2, 4)  # Reduced wait time
-        time.sleep(random_wait_time)
+        time.sleep(random.uniform(1, 1.5))  # Reduced wait time for search results loading
+        self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")  # Faster scrolling
+        time.sleep(random.uniform(1, 1.5))  # Reduced wait time after scroll
 
     def evaluate_jobs_linkedin(self):
-        wait = WebDriverWait(self.driver, 6)  # Reduced wait time
+        wait = WebDriverWait(self.driver, 3)  # Reduced wait time to speed up the process
         try:
             job_cards = wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, 'job-card-container')))
         except Exception as e:
@@ -62,14 +59,13 @@ class LinkedinJobBot:
             return
 
         job_counter = 1
-        for card in job_cards[:5]:  # Limit the number of jobs to evaluate (previously was 10)
+        for card in job_cards[:5]:  # Limit to 5 jobs per role-location combination
             try:
                 self.driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", card)
-                random_wait_time = random.randint(2, 4)  # Reduced wait time
-                time.sleep(random_wait_time)
+                time.sleep(random.uniform(1, 1.5))  # Reduced time between card scroll and click
                 card.click()
-                random_wait_time = random.randint(2, 5)  # Reduced wait time
-                time.sleep(random_wait_time)
+
+                time.sleep(random.uniform(1.5, 2))  # Reduced wait time after clicking the job
 
                 job_title_element = wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'top-card-layout__title')))
                 job_title = job_title_element.text
@@ -89,8 +85,8 @@ class LinkedinJobBot:
                     self.latest_jobs.append(f"{job_counter}. {job_title} - {job_link}")
                     job_counter += 1
 
-                    # Automatically apply for the job if the score is high enough
-                    if score >= 10:  # Adjust the score threshold as needed
+                    # Automatically apply if the score is high enough
+                    if score >= 10:  # Adjust threshold as needed
                         print(f"Automatically applying to {job_title}...")
                         self.apply_to_job(job_title, job_link)
 
@@ -138,8 +134,7 @@ class LinkedinJobBot:
                 self.search_jobs_linkedin(role, location)
                 self.evaluate_jobs_linkedin()
 
-                random_wait_time = random.randint(5, 8)  # Reduced sleep time
-                time.sleep(random_wait_time)
+                time.sleep(random.uniform(3, 4))  # Further reduced sleep time after each search cycle
 
         # Save the latest jobs to a file
         with open('latest_jobs.txt', 'w') as file:
@@ -163,8 +158,8 @@ class LinkedinJobBot:
         self.driver.quit()
 
 bot = LinkedinJobBot(
-    email='username@example.com',
-    password='P@ssword1234'
+    email='maazrana028@gmail.com',
+    password='HipnosisFishTechWHITE90'
 )
 
 try:
